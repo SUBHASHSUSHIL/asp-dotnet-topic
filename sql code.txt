@@ -1,0 +1,35 @@
+create table EmployeeCRUD(Id int identity(1,1) primary key,Name nvarchar(max),Email nvarchar(max),Phone bigint,Address nvarchar(max));
+create procedure _insertEmp
+@Name nvarchar(max),
+@Email nvarchar(max),
+@Phone bigint,
+@Address nvarchar(max)
+as
+begin
+insert into EmployeeCRUD(Name,Email,Phone,Address)values(@Name,@Email,@Phone,@Address);
+end
+
+alter procedure _selectEmp
+@Id int
+as
+begin
+select * from EmployeeCRUD where Id = @Id;
+end
+
+create procedure _deleteEmp
+@Id int
+as
+begin
+delete from EmployeeCRUD where Id = @Id;
+end
+
+create procedure _UpdateEmp
+@Id int,
+@Name nvarchar(max),
+@Email nvarchar(max),
+@Phone bigint,
+@Address nvarchar(max)
+as
+begin
+Update EmployeeCRUD set Name = @Name,Email = @Email,Phone = @Phone,Address = @Address where Id = @Id;
+end

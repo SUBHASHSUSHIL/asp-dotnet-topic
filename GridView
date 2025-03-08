@@ -1,0 +1,155 @@
+Step -- 1
+//Display Data in GridView
+
+private void Gridview()
+{
+    Query = "select * from AdminRagistration";
+    using (SqlCommand cmd = new SqlCommand(Query, con))
+    {
+        cmd.CommandType = CommandType.Text;
+        SqlDataAdapter adp = new SqlDataAdapter(cmd);
+        DataTable dt = new DataTable();
+        adp.Fill(dt);
+        GridView1.DataSource = dt;
+        GridView1.DataBind();
+    }
+}
+
+Step -- 2
+// Row Editing
+
+protected void GridView1_RowEditing(object sender, GridViewEditEventArgs e)
+{
+    GridView1.EditIndex = e.NewEditIndex;
+    Gridview();
+}
+
+Step -- 3
+//Row Cancelling
+
+protected void GridView1_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
+{
+    GridView1.EditIndex = -1;
+    Gridview();
+}
+
+Step -- 4
+//Row Updating
+
+protected void GridView1_RowUpdating(object sender, GridViewUpdateEventArgs e)
+{
+    int id = Convert.ToInt32(GridView1.DataKeys[e.RowIndex].Values["Id"]);
+    string companyname = ((TextBox)GridView1.Rows[e.RowIndex].FindControl("txtCompanyName")).Text;
+    string status = ((TextBox)GridView1.Rows[e.RowIndex].FindControl("txtStatus")).Text;
+
+    Query = "UpdateCreCompany";
+    using (cmd = new SqlCommand(Query, con))
+    {
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@Id", id);
+        cmd.Parameters.AddWithValue("@CompanyName", companyname);
+        cmd.Parameters.AddWithValue("@Status", status);
+        if (con.State == ConnectionState.Closed)
+        {
+            con.Open();
+        }
+        cmd.ExecuteNonQuery();
+        if (con.State == ConnectionState.Open)
+        { con.Close(); }
+        AddCompanyView();
+    }
+}
+
+Step -- 5
+//Row Deleting
+
+protected void GridView1_RowDeleting(object sender, GridViewDeleteEventArgs e)
+{
+    int id = Convert.ToInt32(GridView1.DataKeys[e.RowIndex].Values["Id"]);
+    Query = "DeleteCreCompany";
+    using (cmd = new SqlCommand(Query, con))
+    {
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@Id", id);
+        if (con.State == ConnectionState.Closed)
+        {
+            con.Open();
+        }
+        cmd.ExecuteNonQuery();
+        if (con.State == ConnectionState.Open)
+        {
+            con.Close();
+        }
+        AddCompanyView();
+    }
+}
+
+Step --6
+//Download Excel Formate Data Button through download formate
+
+public override void VerifyRenderingInServerForm(Control control)
+{
+    //required to avoid the run time error "
+    //Control 'GridView1' of type 'Grid View' must be placed inside a form tag with runat = server."
+}
+
+private void ExportGridToExcel()
+{
+    Response.Clear();
+    Response.Buffer = true;
+    Response.ClearContent();
+    Response.ClearHeaders();
+    Response.Charset = "";
+    string FileName = "Vithal" + DateTime.Now + ".xls";
+    StringWriter strwritter = new StringWriter();
+    HtmlTextWriter htmltextwrtter = new HtmlTextWriter(strwritter);
+    Response.Cache.SetCacheability(HttpCacheability.NoCache);
+    Response.ContentType = "application/vnd.ms-excel";
+    Response.AddHeader("Content-Disposition", "attachment;filename=" + FileName);
+    GridView1.GridLines = GridLines.Both;
+    GridView1.HeaderStyle.Font.Bold = true;
+    GridView1.RenderControl(htmltextwrtter);
+    Response.Write(strwritter.ToString());
+    Response.End();
+}
+protected void Button3_Click(object sender, EventArgs e)
+{
+    ExportGridToExcel();
+}
+
+Step -- 7
+//Searching in Date Through then two textbox and button
+
+protected void Button2_Click(object sender, EventArgs e)
+{
+    Query = "_searchDateAdmin";
+    using (cmd = new SqlCommand(Query, con))
+    {
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@from", txtfrom.Text);
+        cmd.Parameters.AddWithValue("@to", txtto.Text);
+        SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+        DataTable dt = new DataTable();
+        adapter.Fill(dt);
+        GridView1.DataSource = dt;
+        GridView1.DataBind();
+    }
+}
+
+//TextBox Through Searching + Button
+
+protected void Button1_Click(object sender, EventArgs e)
+{
+    Query = "_getAllAdmin";
+    using (cmd = new SqlCommand(Query, con))
+    {
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@Search", Textboxx.Text);
+        SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+        DataTable dt = new DataTable();
+        adapter.Fill(dt);
+        GridView1.DataSource = dt;
+        GridView1.DataBind();
+
+    }
+}

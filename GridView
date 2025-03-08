@@ -153,3 +153,291 @@ protected void Button1_Click(object sender, EventArgs e)
 
     }
 }
+
+
+-------------------------------------------------------------------------------------
+	--SQL--
+Select * from Sys.procedures --database all procedure table show
+sp_helptext _AddCompany -- Single table syntax
+
+
+
+
+check box logic:-
+if (CheckBox1.Checked)
+{
+      cmd.Parameters.AddWithValue("@Active","Active");
+}
+else
+{
+      cmd.Parameters.AddWithValue("@Active","Inactive");
+}
+
+
+<asp:GridView ID="GridView1" class="Gridview" AutoGenerateColumns="false" Width="100%" runat="server">
+    <Columns>
+        <asp:BoundField HeaderText="Sno" ReadOnly="True" HeaderStyle-BackColor="#9966FF" DataField="S.no"></asp:BoundField>
+
+        <asp:BoundField DataField="Cname" HeaderText="Category Name" HeaderStyle-BackColor="#9966FF"></asp:BoundField>
+
+        <asp:BoundField DataField="Status" HeaderText="Status" HeaderStyle-BackColor="#9966FF"></asp:BoundField>
+
+        <asp:BoundField DataField="TData" HeaderText="TDate" HeaderStyle-BackColor="#9966FF"></asp:BoundField>
+
+        <asp:BoundField DataField="Image" HeaderText="Photo" HeaderStyle-BackColor="#9966FF" ItemStyle-Height="50px"></asp:BoundField>
+
+        <asp:TemplateField HeaderText="Remove" HeaderStyle-BackColor="#9966FF">
+
+            <ItemTemplate>
+                <asp:ImageButton ID="ImageButton1" runat="server" ImageUrl="../assets/img/gallery/icon-bin.jpg" width="25" height="25" border="0" align="absmiddle" />
+            </ItemTemplate>
+        </asp:TemplateField>
+    </Columns>
+</asp:GridView>
+
+
+----------------------------------------------------------------------------------------------------
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Web_Form.aspx.cs" Inherits="ASP_DOTNET.Web_Form" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+            <table border="1">
+                <tr>
+                    <th colspan="2"> ASP CRUD</th>
+                </tr>
+                <tr>
+                    <th>Id:</th>
+                    <td>
+                        <asp:TextBox ID="TextBox1" runat="server"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Name</th>
+                    <td>
+                        <asp:TextBox ID="TextBox2" runat="server"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Email Id:</th>
+                    <td>
+                        <asp:TextBox ID="TextBox3" runat="server"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Designation:</th>
+                    <td>
+                        <asp:TextBox ID="TextBox4" runat="server"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Salary:</th>
+                    <td>
+                        <asp:TextBox ID="TextBox5" runat="server"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <th>MobileNo:</th>
+                    <td>
+                        <asp:TextBox ID="TextBox6" runat="server"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Address:</th>
+                    <td>
+                        <asp:TextBox ID="TextBox7" runat="server"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <th colspan="2">
+                        <asp:Button ID="btnCreate" runat="server" Text="Create" OnClick="btnCreate_Click" />
+                        <asp:Button ID="btnSelect" runat="server" Text="Select" OnClick="btnSelect_Click" />
+                        <asp:Button ID="btnUpdate" runat="server" Text="Update" OnClick="btnUpdate_Click" />
+                        <asp:Button ID="btnDelete" runat="server" Text="Delete" OnClick="btnDelete_Click" />
+                    </th>
+                </tr>
+            </table>
+        </div>
+    </form>
+</body>
+</html>
+
+----------------
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace ASP_DOTNET
+{
+    public partial class Web_Form : System.Web.UI.Page
+    {
+        SqlConnection con = new SqlConnection("Data Source=DESKTOP-F1LI6MI;initial catalog=ASP_DOTNET_CRUD;integrated security=true;");
+        SqlCommand cmd;
+        public string Query { get; set; }
+        protected void Page_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void btnCreate_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Query = "Emp_Insert";
+                using (cmd = new SqlCommand(Query, con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Name", TextBox2.Text);
+                    cmd.Parameters.AddWithValue("@Email", TextBox3.Text);
+                    cmd.Parameters.AddWithValue("@Designation", TextBox4.Text);
+                    cmd.Parameters.AddWithValue("@Salary", TextBox5.Text);
+                    cmd.Parameters.AddWithValue("@MobileNo", TextBox6.Text);
+                    cmd.Parameters.AddWithValue("@Address", TextBox7.Text);
+                    if (con.State == ConnectionState.Closed)
+                    {
+                        con.Open();
+                    }
+                    cmd.ExecuteNonQuery();
+                    Response.Write("<script>alert('Inserted Successfully..')</script>");
+                    
+                }
+            }
+            catch(Exception ex)
+            {
+                Response.Write(ex.ToString());
+            }
+            finally
+            {
+                if (con.State == ConnectionState.Open)
+                {
+                    con.Close();
+                }
+                Clear();
+            }
+            
+        }
+
+        protected void btnSelect_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Query = "Emp_Select";
+                using(cmd = new SqlCommand(Query, con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Id", TextBox1.Text);
+                    if(con.State == ConnectionState.Closed)
+                    {
+                        con.Open();
+                    }
+                    SqlDataReader dr = cmd.ExecuteReader();
+                    if(dr.Read())
+                    {
+                        TextBox1.Text = dr["Id"].ToString();
+                        TextBox2.Text = dr["Name"].ToString();
+                        TextBox3.Text = dr["Email"].ToString();
+                        TextBox4.Text = dr["Designation"].ToString();
+                        TextBox5.Text = dr["Salary"].ToString();
+                        TextBox6.Text = dr["MobileNo"].ToString();
+                        TextBox7.Text = dr["Address"].ToString();
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Response.Write(ex.ToString());
+            }
+            finally
+            {
+                if(con.State == ConnectionState.Open)
+                { con.Close(); }
+            }
+        }
+
+        protected void btnUpdate_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Query = "Emp_Update";
+                using( cmd = new SqlCommand(Query, con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Id", TextBox1.Text);
+                    cmd.Parameters.AddWithValue("@Name", TextBox2.Text);
+                    cmd.Parameters.AddWithValue("@Email", TextBox3.Text);
+                    cmd.Parameters.AddWithValue("@Designation", TextBox4.Text);
+                    cmd.Parameters.AddWithValue("@Salary", TextBox5.Text);
+                    cmd.Parameters.AddWithValue("@MobileNo", TextBox6.Text);
+                    cmd.Parameters.AddWithValue("@Address", TextBox7.Text);
+                    if (con.State == ConnectionState.Closed)
+                    {
+                        con.Open();
+                    }
+                    cmd.ExecuteNonQuery();
+                    Response.Write("<script>alert('Inserted Successfully..')</script>");
+                }
+            }
+            catch(Exception ex)
+            {
+                Response.Write($"Error: {ex.ToString()}");
+            }
+            finally
+            {
+                if(con.State == ConnectionState.Open)
+                { con.Close(); }
+                Clear();
+            }
+        }
+
+        protected void btnDelete_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Query = "Emp_Delete";
+                using(cmd = new SqlCommand(Query, con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Id", TextBox1.Text);
+                    if(con.State == ConnectionState.Closed)
+                    {
+                        con.Open();
+                    }
+                    cmd.ExecuteNonQuery();
+                    Response.Write("<script>alert('Deleted Successfully..')</script>");
+                }
+            }
+            catch(Exception ex)
+            {
+                Response.Write(ex.ToString());
+            }
+            finally
+            {
+                if (con.State == ConnectionState.Open)
+                { con.Close(); }
+                Clear();
+            }
+        }
+
+        private void Clear()
+        {
+            TextBox1.Text = string.Empty;
+            TextBox2.Text = string.Empty;
+            TextBox3.Text = string.Empty;
+            TextBox4.Text = string.Empty;
+            TextBox5.Text = string.Empty;
+            TextBox6.Text = string.Empty;
+            TextBox7.Text = string.Empty;
+        }
+    }
+}
